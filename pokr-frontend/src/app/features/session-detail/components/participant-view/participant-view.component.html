@@ -1,0 +1,183 @@
+<div class="participant-view-container">
+  <!-- Session Header -->
+  <mat-card class="session-header" *ngIf="sessionStatus">
+    <mat-card-header>
+      <mat-card-title>{{ sessionStatus.name }}</mat-card-title>
+      <mat-card-subtitle>
+        Session: {{ sessionCode }} | Participant: {{ participantName }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="connection-status">
+        <mat-icon [color]="getConnectionStatusColor()">
+          {{ isConnected ? 'wifi' : 'wifi_off' }}
+        </mat-icon>
+        <span [class]="'status-' + getConnectionStatusColor()">
+          {{ getConnectionStatusText() }}
+        </span>
+        <span class="last-updated" *ngIf="lastUpdated">
+          Updated: {{ lastUpdated | date:'short' }}
+        </span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Connection Error -->
+  <mat-card class="error-card" *ngIf="connectionError">
+    <mat-card-content>
+      <div class="error-content">
+        <mat-icon color="warn">error</mat-icon>
+        <span>{{ connectionError }}</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Current Story -->
+  <mat-card class="current-story" *ngIf="currentStory">
+    <mat-card-header>
+      <mat-card-title>Current Story</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <h3 class="story-title">{{ currentStory.title }}</h3>
+      <div class="story-status">
+        <mat-chip-set>
+          <mat-chip [color]="currentStory.status === 'Estimated' ? 'primary' : 'accent'">
+            {{ currentStory.status }}
+          </mat-chip>
+          <mat-chip *ngIf="currentStory.finalEstimate" color="primary">
+            {{ currentStory.finalEstimate }} points
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- No Current Story -->
+  <mat-card class="no-story" *ngIf="!currentStory && sessionStatus">
+    <mat-card-content>
+      <div class="no-story-content">
+        <mat-icon>hourglass_empty</mat-icon>
+        <h3>Waiting for Story</h3>
+        <p>The facilitator hasn't selected a story to estimate yet.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Voting Section -->
+  <div class="voting-section" *ngIf="currentStory && !showResults">
+    <app-voting-cards
+      [hasSubmitted]="hasVoted"
+      [isSubmitting]="isSubmittingVote"
+      [errorMessage]="voteError"
+      (voteSelected)="onVoteSelected($event)"
+      (voteSubmitted)="onVoteSubmitted($event)"
+      (selectionCleared)="onSelectionCleared()">
+    </app-voting-cards>
+  </div>
+
+  <!-- Vote Results -->
+  <mat-card class="vote-results" *ngIf="showResults && voteResults">
+    <mat-card-header>
+      <mat-card-title>Vote Results</mat-card-title>
+      <mat-card-subtitle>{{ voteResults.storyTitle }}</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="results-summary">
+        <div class="consensus-indicator">
+          <mat-icon [color]="voteResults.hasConsensus ? 'primary' : 'warn'">
+            {{ voteResults.hasConsensus ? 'check_circle' : 'warning' }}
+          </mat-icon>
+          <span>{{ voteResults.hasConsensus ? 'Consensus Reached' : 'No Consensus' }}</span>
+        </div>
+        
+        <div class="suggested-estimate" *ngIf="voteResults.suggestedEstimate">
+          <strong>Suggested: {{ voteResults.suggestedEstimate }} points</strong>
+        </div>
+      </div>
+      
+      <div class="vote-breakdown">
+        <h4>Individual Votes</h4>
+        <div class="votes-list">
+          <div class="vote-item" *ngFor="let vote of voteResults.votes">
+            <span class="participant-name">{{ vote.participantName }}</span>
+            <mat-chip class="vote-value">{{ vote.estimate }}</mat-chip>
+          </div>
+        </div>
+      </div>
+      
+      <div class="estimate-distribution" *ngIf="voteResults.estimateDistribution">
+        <h4>Vote Distribution</h4>
+        <div class="distribution-chart">
+          <div class="distribution-item" 
+               *ngFor="let item of voteResults.estimateDistribution | keyvalue">
+            <span class="estimate">{{ item.key }}</span>
+            <div class="count-bar">
+              <div class="bar" [style.width.%]="(item.value / voteResults.votes.length) * 100"></div>
+              <span class="count">{{ item.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Participants List -->
+  <mat-card class="participants-list">
+    <mat-card-header>
+      <mat-card-title>
+        Participants ({{ getVotedParticipantsCount() }}/{{ getTotalParticipantsCount() }})
+      </mat-card-title>
+      <mat-card-subtitle *ngIf="currentStory">
+        {{ getAllParticipantsVoted() ? 'All participants have voted!' : 'Waiting for votes...' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item *ngFor="let participant of participants">
+          <mat-icon matListItemIcon [color]="participant.hasVotedForCurrentStory ? 'primary' : 'accent'">
+            {{ getParticipantStatusIcon(participant) }}
+          </mat-icon>
+          
+          <div matListItemTitle>{{ participant.name }}</div>
+          <div matListItemLine>{{ getParticipantVoteStatus(participant) }}</div>
+          
+          <mat-chip matListItemMeta 
+                    [color]="participant.name === participantName ? 'primary' : 'basic'">
+            {{ participant.name === participantName ? 'You' : 'Participant' }}
+          </mat-chip>
+        </mat-list-item>
+      </mat-list>
+      
+      <div class="empty-participants" *ngIf="participants.length === 0">
+        <mat-icon>group</mat-icon>
+        <p>No participants in this session yet.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Voting Progress -->
+  <mat-card class="voting-progress" *ngIf="currentStory && !showResults">
+    <mat-card-content>
+      <div class="progress-header">
+        <h4>Voting Progress</h4>
+        <span class="progress-text">
+          {{ getVotedParticipantsCount() }} of {{ getTotalParticipantsCount() }} voted
+        </span>
+      </div>
+      
+      <mat-progress-bar 
+        mode="determinate" 
+        [value]="(getVotedParticipantsCount() / getTotalParticipantsCount()) * 100">
+      </mat-progress-bar>
+      
+      <div class="progress-status" *ngIf="getAllParticipantsVoted()">
+        <mat-icon color="primary">check_circle</mat-icon>
+        <span>Ready for reveal! Waiting for facilitator...</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

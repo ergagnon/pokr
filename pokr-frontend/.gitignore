@@ -1,0 +1,8 @@
+# Angular Specific
+## Build artifacts
+dist/
+.angular/cache/
+coverage/
+
+## Dependencies
+node_modules/

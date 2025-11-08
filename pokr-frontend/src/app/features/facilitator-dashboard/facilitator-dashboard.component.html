@@ -1,0 +1,265 @@
+<div class="facilitator-dashboard" *ngIf="!isLoading">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <mat-card class="session-info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>groups</mat-icon>
+          {{ sessionStatus?.name }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          Session Code: <strong>{{ sessionCode }}</strong> | 
+          Facilitator: {{ sessionStatus?.facilitatorName }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="goToParticipantView()">
+          <mat-icon>visibility</mat-icon>
+          View as Participant
+        </button>
+        <button mat-raised-button 
+                color="accent" 
+                (click)="showSummary()"
+                [disabled]="!canCompleteSession()">
+          <mat-icon>summarize</mat-icon>
+          Session Summary
+        </button>
+        <button mat-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Sessions
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="dashboard-content">
+    <!-- Left Panel: Session Management -->
+    <div class="left-panel">
+      
+      <!-- Participants Section -->
+      <mat-card class="participants-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>people</mat-icon>
+            Participants ({{ participants.length }})
+          </mat-card-title>
+          <mat-card-subtitle *ngIf="currentStory">
+            {{ getParticipantVotingStatus() }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <mat-list *ngIf="participants.length > 0; else noParticipants">
+            <mat-list-item *ngFor="let participant of participants">
+              <mat-icon matListItemIcon 
+                       [class.voted]="participant.hasVotedForCurrentStory"
+                       [class.not-voted]="!participant.hasVotedForCurrentStory && currentStory">
+                {{ participant.hasVotedForCurrentStory ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              <div matListItemTitle>{{ participant.name }}</div>
+              <div matListItemLine>
+                Joined: {{ participant.joinedAt | date:'short' }}
+              </div>
+              <mat-chip-set matListItemMeta>
+                <mat-chip *ngIf="currentStory" 
+                         [class.voted-chip]="participant.hasVotedForCurrentStory"
+                         [class.waiting-chip]="!participant.hasVotedForCurrentStory">
+                  {{ participant.hasVotedForCurrentStory ? 'Voted' : 'Waiting' }}
+                </mat-chip>
+              </mat-chip-set>
+            </mat-list-item>
+          </mat-list>
+          
+          <ng-template #noParticipants>
+            <div class="empty-state">
+              <mat-icon>person_add</mat-icon>
+              <p>No participants yet. Share the session code: <strong>{{ sessionCode }}</strong></p>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Story Management Section -->
+      <mat-card class="stories-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>list_alt</mat-icon>
+            User Stories
+          </mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <!-- Add New Story -->
+          <div class="add-story-section">
+            <mat-form-field appearance="outline" class="story-input">
+              <mat-label>Add new story</mat-label>
+              <input matInput 
+                     [(ngModel)]="newStoryTitle" 
+                     placeholder="Enter story title"
+                     (keyup.enter)="addStory()"
+                     [disabled]="isAddingStory">
+            </mat-form-field>
+            <button mat-raised-button 
+                    color="primary" 
+                    (click)="addStory()"
+                    [disabled]="!newStoryTitle.trim() || isAddingStory">
+              <mat-icon *ngIf="!isAddingStory">add</mat-icon>
+              <mat-spinner *ngIf="isAddingStory" diameter="20"></mat-spinner>
+              Add
+            </button>
+          </div>
+
+          <!-- Stories List -->
+          <div class="stories-list" *ngIf="stories && stories.length > 0">
+            <mat-selection-list [multiple]="false">
+              <mat-list-option *ngFor="let story of stories" 
+                              [selected]="story.id === currentStory?.id"
+                              (click)="setCurrentStory(story)"
+                              [class.estimated-story]="story.finalEstimate !== null">
+                <div class="story-item">
+                  <div class="story-title">{{ story.title }}</div>
+                  <div class="story-meta">
+                    <mat-chip-set>
+                      <mat-chip *ngIf="story.finalEstimate !== null" class="estimated-chip">
+                        {{ story.finalEstimate }} pts
+                      </mat-chip>
+                      <mat-chip *ngIf="story.id === currentStory?.id" class="current-chip">
+                        Current
+                      </mat-chip>
+                      <mat-chip *ngIf="story.status" [ngClass]="'status-' + story.status.toLowerCase()">
+                        {{ story.status }}
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                </div>
+              </mat-list-option>
+            </mat-selection-list>
+          </div>
+          
+          <div class="empty-state" *ngIf="!stories || stories.length === 0">
+            <mat-icon>note_add</mat-icon>
+            <p>No stories added yet. Add your first story above.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Right Panel: Current Story & Voting -->
+    <div class="right-panel">
+      
+      <!-- Current Story Section -->
+      <mat-card class="current-story-card" *ngIf="currentStory">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>assignment</mat-icon>
+            Current Story
+          </mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <h3>{{ currentStory.title }}</h3>
+          
+          <!-- Voting Status -->
+          <div class="voting-status">
+            <mat-progress-bar 
+              mode="determinate" 
+              [value]="getVotingProgress()">
+            </mat-progress-bar>
+            <p class="voting-progress">{{ getParticipantVotingStatus() }}</p>
+            
+            <div class="voting-indicators" *ngIf="participants.length > 0">
+              <mat-chip-set>
+                <mat-chip *ngIf="votingInProgress" class="voting-chip">
+                  <mat-icon>timer</mat-icon>
+                  Voting in Progress
+                </mat-chip>
+                <mat-chip *ngIf="allParticipantsVoted && !voteResults" class="ready-chip">
+                  <mat-icon>done_all</mat-icon>
+                  Ready to Reveal
+                </mat-chip>
+                <mat-chip *ngIf="voteResults" class="revealed-chip">
+                  <mat-icon>visibility</mat-icon>
+                  Votes Revealed
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+
+          <!-- Voting Controls -->
+          <div class="voting-controls">
+            <button mat-raised-button 
+                    color="accent" 
+                    (click)="revealVotes()"
+                    [disabled]="!canRevealVotes()"
+                    class="reveal-button">
+              <mat-icon *ngIf="!isRevealingVotes">visibility</mat-icon>
+              <mat-spinner *ngIf="isRevealingVotes" diameter="20"></mat-spinner>
+              Reveal Votes
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Vote Results Section -->
+      <mat-card class="vote-results-card" *ngIf="voteResults">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>poll</mat-icon>
+            Vote Results
+          </mat-card-title>
+          <mat-card-subtitle>{{ voteResults.storyTitle }}</mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <app-results-display 
+            [voteResults]="voteResults"
+            [showFinalizeControls]="true"
+            [fibonacciSequence]="fibonacciSequence"
+            [isFinalizingEstimate]="isFinalizingEstimate"
+            (finalizeEstimate)="onFinalizeEstimate($event)">
+          </app-results-display>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- No Current Story -->
+      <mat-card class="no-story-card" *ngIf="!currentStory">
+        <mat-card-content>
+          <div class="empty-state">
+            <mat-icon>assignment_add</mat-icon>
+            <h3>No Current Story</h3>
+            <p>Add a story and select it to start the estimation process.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+
+<!-- Session Summary Overlay -->
+<div class="session-summary-overlay" *ngIf="showSessionSummary" (click)="onCloseSummary()">
+  <div class="summary-container" (click)="$event.stopPropagation()">
+    <div class="summary-header">
+      <h2>Session Summary</h2>
+      <button mat-icon-button (click)="onCloseSummary()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="summary-content">
+      <app-session-summary 
+        [sessionData]="sessionSummaryData"
+        [showExportOptions]="true"
+        [showArchiveOptions]="true"
+        (exportSession)="onExportSession($event)"
+        (archiveSession)="onArchiveSession()"
+        (closeSession)="onCloseSummary()">
+      </app-session-summary>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="isLoading">
+  <mat-spinner diameter="50"></mat-spinner>
+  <p>Loading session...</p>
+</div>

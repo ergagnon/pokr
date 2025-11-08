@@ -1,0 +1,450 @@
+.results-display {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// Consensus Status
+.consensus-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  
+  &.consensus {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #4caf50;
+    
+    mat-icon {
+      color: #4caf50;
+    }
+  }
+  
+  &.no-consensus {
+    background-color: #fff3e0;
+    color: #f57c00;
+    border: 1px solid #ff9800;
+    
+    mat-icon {
+      color: #ff9800;
+    }
+  }
+  
+  .consensus-message {
+    font-size: 1rem;
+  }
+}
+
+// Vote Statistics
+.vote-statistics {
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 1rem;
+    
+    .stat-item {
+      text-align: center;
+      padding: 0.75rem;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      
+      .stat-label {
+        display: block;
+        font-size: 0.875rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+      }
+      
+      .stat-value {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+  }
+}
+
+// Individual Votes
+.individual-votes {
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+    
+    mat-icon {
+      color: #666;
+    }
+  }
+  
+  .votes-grid {
+    display: grid;
+    gap: 0.75rem;
+    
+    .vote-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background-color: #fafafa;
+      transition: all 0.2s ease;
+      
+      &.highest-vote {
+        border-color: #f44336;
+        background-color: #ffebee;
+        
+        .vote-value {
+          color: #d32f2f;
+          font-weight: 600;
+        }
+      }
+      
+      &.lowest-vote {
+        border-color: #2196f3;
+        background-color: #e3f2fd;
+        
+        .vote-value {
+          color: #1976d2;
+          font-weight: 600;
+        }
+      }
+      
+      .participant-info {
+        flex: 1;
+        
+        .participant-name {
+          font-weight: 500;
+          color: #333;
+        }
+        
+        .vote-time {
+          font-size: 0.875rem;
+          color: #666;
+          margin-top: 0.25rem;
+        }
+      }
+      
+      .vote-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 50%;
+        background-color: #fff;
+        border: 2px solid #ddd;
+        min-width: 3rem;
+        text-align: center;
+        margin: 0 1rem;
+        
+        &.estimate-1 { border-color: #4caf50; color: #4caf50; }
+        &.estimate-2 { border-color: #8bc34a; color: #8bc34a; }
+        &.estimate-3 { border-color: #cddc39; color: #cddc39; }
+        &.estimate-5 { border-color: #ffeb3b; color: #f57f17; }
+        &.estimate-8 { border-color: #ffc107; color: #f57c00; }
+        &.estimate-13 { border-color: #ff9800; color: #ef6c00; }
+        &.estimate-21 { border-color: #ff5722; color: #d84315; }
+        &.estimate-special { border-color: #9c27b0; color: #9c27b0; }
+      }
+      
+      .vote-indicators {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        
+        .highest-chip {
+          background-color: #ffcdd2;
+          color: #d32f2f;
+          font-size: 0.75rem;
+          
+          mat-icon {
+            font-size: 1rem;
+            width: 1rem;
+            height: 1rem;
+          }
+        }
+        
+        .lowest-chip {
+          background-color: #bbdefb;
+          color: #1976d2;
+          font-size: 0.75rem;
+          
+          mat-icon {
+            font-size: 1rem;
+            width: 1rem;
+            height: 1rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Vote Distribution
+.vote-distribution {
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+    
+    mat-icon {
+      color: #666;
+    }
+  }
+  
+  .distribution-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    
+    .distribution-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      
+      .estimate-info {
+        min-width: 80px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        .estimate-label {
+          font-weight: 600;
+          font-size: 1.125rem;
+        }
+        
+        .estimate-count {
+          color: #666;
+          font-size: 0.875rem;
+        }
+      }
+      
+      .distribution-bar {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        height: 2rem;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+        
+        .bar-fill {
+          height: 100%;
+          transition: width 0.3s ease;
+          
+          &.estimate-1 { background-color: #4caf50; }
+          &.estimate-2 { background-color: #8bc34a; }
+          &.estimate-3 { background-color: #cddc39; }
+          &.estimate-5 { background-color: #ffeb3b; }
+          &.estimate-8 { background-color: #ffc107; }
+          &.estimate-13 { background-color: #ff9800; }
+          &.estimate-21 { background-color: #ff5722; }
+          &.estimate-special { background-color: #9c27b0; }
+        }
+        
+        .percentage {
+          position: absolute;
+          right: 0.5rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #333;
+        }
+      }
+    }
+  }
+}
+
+// Discussion Focus
+.discussion-focus {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+    
+    mat-icon {
+      color: #666;
+    }
+  }
+  
+  .focus-areas {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    
+    .focus-area {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem;
+      border-radius: 6px;
+      
+      &.highest-focus {
+        background-color: #ffebee;
+        border: 1px solid #ffcdd2;
+        
+        mat-icon {
+          color: #d32f2f;
+        }
+      }
+      
+      &.lowest-focus {
+        background-color: #e3f2fd;
+        border: 1px solid #bbdefb;
+        
+        mat-icon {
+          color: #1976d2;
+        }
+      }
+      
+      .focus-content {
+        flex: 1;
+        
+        strong {
+          display: block;
+          margin-bottom: 0.25rem;
+        }
+        
+        .participants {
+          color: #666;
+          font-style: italic;
+        }
+      }
+    }
+  }
+  
+  .discussion-suggestion {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: #fff3e0;
+    border: 1px solid #ffcc02;
+    border-radius: 6px;
+    color: #f57c00;
+    font-style: italic;
+    
+    mat-icon {
+      color: #ff9800;
+    }
+  }
+}
+
+// Finalize Section
+.finalize-section {
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+    
+    mat-icon {
+      color: #666;
+    }
+  }
+  
+  .finalize-controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    
+    .estimate-select {
+      flex: 1;
+      max-width: 200px;
+    }
+    
+    .finalize-button {
+      height: 56px; // Match mat-form-field height
+    }
+  }
+  
+  .finalize-suggestion {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4caf50;
+    font-weight: 500;
+    
+    mat-icon {
+      color: #4caf50;
+    }
+  }
+}
+
+// Empty State
+.empty-results {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+  
+  mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+    color: #ccc;
+  }
+  
+  h3 {
+    margin-bottom: 0.5rem;
+    color: #999;
+  }
+  
+  p {
+    color: #999;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .individual-votes .votes-grid .vote-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    
+    .vote-value {
+      align-self: center;
+      margin: 0;
+    }
+    
+    .vote-indicators {
+      align-self: flex-end;
+    }
+  }
+  
+  .finalize-controls {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .estimate-select {
+      max-width: none;
+    }
+  }
+  
+  .vote-statistics .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

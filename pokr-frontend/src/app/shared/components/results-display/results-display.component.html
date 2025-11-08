@@ -1,0 +1,159 @@
+<div class="results-display" *ngIf="voteResults">
+  <!-- Consensus Status -->
+  <div class="consensus-status" 
+       [ngClass]="{'consensus': voteResults.hasConsensus, 'no-consensus': !voteResults.hasConsensus}">
+    <mat-icon>{{ getConsensusIcon() }}</mat-icon>
+    <span class="consensus-message">{{ getConsensusMessage() }}</span>
+  </div>
+
+  <!-- Vote Statistics Summary -->
+  <div class="vote-statistics" *ngIf="getVoteStatistics() as stats">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-label">Min</span>
+        <span class="stat-value">{{ stats.min }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Max</span>
+        <span class="stat-value">{{ stats.max }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Avg</span>
+        <span class="stat-value">{{ stats.avg }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Median</span>
+        <span class="stat-value">{{ stats.median }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Individual Votes with Highlighting -->
+  <div class="individual-votes">
+    <h4>
+      <mat-icon>how_to_vote</mat-icon>
+      Individual Estimates
+    </h4>
+    <div class="votes-grid">
+      <div class="vote-item" 
+           *ngFor="let vote of sortedVotes"
+           [ngClass]="{
+             'highest-vote': isHighestVote(vote),
+             'lowest-vote': isLowestVote(vote)
+           }">
+        <div class="participant-info">
+          <div class="participant-name">{{ vote.participantName }}</div>
+          <div class="vote-time">{{ vote.submittedAt | date:'short' }}</div>
+        </div>
+        <div class="vote-value" [ngClass]="getEstimateClass(vote.estimate)">
+          {{ getEstimateDisplayValue(vote.estimate) }}
+        </div>
+        <div class="vote-indicators">
+          <mat-chip *ngIf="isHighestVote(vote)" class="highest-chip">
+            <mat-icon>trending_up</mat-icon>
+            Highest
+          </mat-chip>
+          <mat-chip *ngIf="isLowestVote(vote)" class="lowest-chip">
+            <mat-icon>trending_down</mat-icon>
+            Lowest
+          </mat-chip>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vote Distribution Chart -->
+  <div class="vote-distribution">
+    <h4>
+      <mat-icon>bar_chart</mat-icon>
+      Vote Distribution
+    </h4>
+    <div class="distribution-chart">
+      <div class="distribution-item" 
+           *ngFor="let item of distributionEntries"
+           [ngClass]="getEstimateClass(item.estimate)">
+        <div class="estimate-info">
+          <span class="estimate-label">{{ getEstimateDisplayValue(item.estimate) }}</span>
+          <span class="estimate-count">({{ item.count }})</span>
+        </div>
+        <div class="distribution-bar">
+          <div class="bar-fill" 
+               [style.width.%]="item.percentage"
+               [ngClass]="getEstimateClass(item.estimate)">
+          </div>
+          <span class="percentage">{{ item.percentage | number:'1.0-1' }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discussion Focus Areas -->
+  <div class="discussion-focus" *ngIf="highestVotes.length > 0 && lowestVotes.length > 0 && !voteResults.hasConsensus">
+    <h4>
+      <mat-icon>forum</mat-icon>
+      Discussion Focus
+    </h4>
+    <div class="focus-areas">
+      <div class="focus-area highest-focus">
+        <mat-icon>trending_up</mat-icon>
+        <div class="focus-content">
+          <strong>Highest Estimates ({{ getEstimateDisplayValue(highestVotes[0].estimate) }}):</strong>
+          <span class="participants">{{ getHighestVoteParticipants() }}</span>
+        </div>
+      </div>
+      <div class="focus-area lowest-focus">
+        <mat-icon>trending_down</mat-icon>
+        <div class="focus-content">
+          <strong>Lowest Estimates ({{ getEstimateDisplayValue(lowestVotes[0].estimate) }}):</strong>
+          <span class="participants">{{ getLowestVoteParticipants() }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="discussion-suggestion">
+      <mat-icon>lightbulb</mat-icon>
+      <span>Consider discussing the reasoning behind the highest and lowest estimates to reach consensus.</span>
+    </div>
+  </div>
+
+  <!-- Finalize Estimate Section -->
+  <div class="finalize-section" *ngIf="showFinalizeControls">
+    <h4>
+      <mat-icon>save</mat-icon>
+      Finalize Estimate
+    </h4>
+    <div class="finalize-controls">
+      <mat-form-field appearance="outline" class="estimate-select">
+        <mat-label>Final Points</mat-label>
+        <mat-select [(value)]="selectedFinalEstimate">
+          <mat-option *ngFor="let points of fibonacciSequence" [value]="points">
+            {{ points }} points
+          </mat-option>
+          <mat-option [value]="-1">? (Unknown)</mat-option>
+          <mat-option [value]="-2">☕ (Break needed)</mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <button mat-raised-button 
+              color="primary" 
+              (click)="onFinalizeEstimate()"
+              [disabled]="!canFinalize()"
+              class="finalize-button">
+        <mat-icon *ngIf="!isFinalizingEstimate">save</mat-icon>
+        <mat-spinner *ngIf="isFinalizingEstimate" diameter="20"></mat-spinner>
+        Finalize Estimate
+      </button>
+    </div>
+    
+    <div class="finalize-suggestion" *ngIf="voteResults.hasConsensus && voteResults.suggestedEstimate">
+      <mat-icon>recommend</mat-icon>
+      <span>Suggested: {{ getEstimateDisplayValue(voteResults.suggestedEstimate) }} points (based on consensus)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Empty State -->
+<div class="empty-results" *ngIf="!voteResults">
+  <mat-icon>poll</mat-icon>
+  <h3>No Vote Results</h3>
+  <p>Votes will appear here once revealed by the facilitator.</p>
+</div>

@@ -1,0 +1,187 @@
+<div class="session-summary" *ngIf="sessionData">
+  <!-- Session Overview -->
+  <div class="summary-header">
+    <div class="session-info">
+      <h2>{{ sessionData?.session?.name }}</h2>
+      <div class="session-meta">
+        <span class="session-code">Code: {{ sessionData?.session?.code }}</span>
+        <span class="facilitator">Facilitator: {{ sessionData?.session?.facilitatorName }}</span>
+        <span class="duration" *ngIf="sessionData?.sessionDuration">Duration: {{ sessionData?.sessionDuration }}</span>
+      </div>
+    </div>
+    
+    <div class="completion-indicator">
+      <mat-progress-bar 
+        mode="determinate" 
+        [value]="getCompletionPercentage()"
+        class="completion-bar">
+      </mat-progress-bar>
+      <span class="completion-text">{{ getCompletionPercentage() }}% Complete</span>
+    </div>
+  </div>
+
+  <!-- Session Statistics -->
+  <div class="session-stats">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <mat-icon>assignment</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ getSessionStats().totalStories }}</span>
+          <span class="stat-label">Total Stories</span>
+        </div>
+      </div>
+      
+      <div class="stat-card estimated">
+        <mat-icon>check_circle</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ getSessionStats().estimatedStories }}</span>
+          <span class="stat-label">Estimated</span>
+        </div>
+      </div>
+      
+      <div class="stat-card pending">
+        <mat-icon>pending</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ getSessionStats().pendingStories }}</span>
+          <span class="stat-label">Pending</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <mat-icon>people</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ getSessionStats().totalParticipants }}</span>
+          <span class="stat-label">Participants</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Story Points Summary -->
+  <div class="points-summary" *ngIf="sessionData?.estimatedStories && sessionData.estimatedStories.length > 0">
+    <h3>
+      <mat-icon>analytics</mat-icon>
+      Story Points Summary
+    </h3>
+    <div class="points-stats">
+      <div class="points-item">
+        <span class="points-label">Total Points:</span>
+        <span class="points-value">{{ sessionData?.totalStoryPoints }}</span>
+      </div>
+      <div class="points-item">
+        <span class="points-label">Average Points:</span>
+        <span class="points-value">{{ sessionData?.averageStoryPoints | number:'1.1-1' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estimated Stories List -->
+  <div class="estimated-stories" *ngIf="sessionData?.estimatedStories && sessionData.estimatedStories.length > 0">
+    <h3>
+      <mat-icon>done_all</mat-icon>
+      Estimated Stories ({{ sessionData?.estimatedStories?.length }})
+    </h3>
+    <div class="stories-list">
+      <div class="story-item" 
+           *ngFor="let story of sessionData?.estimatedStories"
+           [ngClass]="getStoryStatusClass(story)">
+        <div class="story-content">
+          <div class="story-title">{{ story.title }}</div>
+          <div class="story-meta">
+            <span class="story-date">{{ story.createdAt | date:'short' }}</span>
+          </div>
+        </div>
+        <div class="story-estimate">
+          <mat-chip class="estimate-chip">
+            {{ getEstimateDisplayValue(story.finalEstimate) }}
+          </mat-chip>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Stories List -->
+  <div class="pending-stories" *ngIf="hasPendingStories()">
+    <h3>
+      <mat-icon>pending_actions</mat-icon>
+      Pending Stories ({{ getSessionStats().pendingStories }})
+    </h3>
+    <div class="stories-list">
+      <div class="story-item pending" 
+           *ngFor="let story of sessionData?.session?.stories"
+           [hidden]="story.finalEstimate !== null && story.finalEstimate !== undefined">
+        <div class="story-content">
+          <div class="story-title">{{ story.title }}</div>
+          <div class="story-meta">
+            <span class="story-date">{{ story.createdAt | date:'short' }}</span>
+          </div>
+        </div>
+        <div class="story-estimate">
+          <mat-chip class="pending-chip">
+            Not Estimated
+          </mat-chip>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Participants List -->
+  <div class="participants-summary">
+    <h3>
+      <mat-icon>group</mat-icon>
+      Participants ({{ sessionData?.session?.participantCount }})
+    </h3>
+    <div class="participants-list">
+      <mat-chip-set>
+        <mat-chip *ngFor="let participant of sessionData?.session?.participants">
+          {{ participant.name }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="summary-actions">
+    <div class="export-actions" *ngIf="showExportOptions">
+      <h4>Export Session</h4>
+      <div class="export-buttons">
+        <button mat-raised-button (click)="onExport('json')">
+          <mat-icon>code</mat-icon>
+          Export JSON
+        </button>
+        <button mat-raised-button (click)="onExport('csv')">
+          <mat-icon>table_chart</mat-icon>
+          Export CSV
+        </button>
+        <button mat-raised-button (click)="onExport('pdf')">
+          <mat-icon>picture_as_pdf</mat-icon>
+          Export PDF
+        </button>
+      </div>
+    </div>
+
+    <div class="session-actions">
+      <button mat-raised-button 
+              color="warn" 
+              (click)="onArchive()"
+              *ngIf="showArchiveOptions">
+        <mat-icon>archive</mat-icon>
+        Archive Session
+      </button>
+      
+      <button mat-raised-button 
+              color="primary" 
+              (click)="onClose()">
+        <mat-icon>close</mat-icon>
+        Close Summary
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Empty State -->
+<div class="empty-summary" *ngIf="!sessionData">
+  <mat-icon>summarize</mat-icon>
+  <h3>No Session Data</h3>
+  <p>Session summary will appear here once data is loaded.</p>
+</div>

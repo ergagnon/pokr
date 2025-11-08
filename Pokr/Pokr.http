@@ -1,0 +1,6 @@
+@Pokr_HostAddress = http://localhost:5225
+
+GET {{Pokr_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

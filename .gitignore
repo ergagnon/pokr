@@ -1,0 +1,70 @@
+# C# / .NET Specific
+## Build artifacts
+[Bb]in/
+[Oo]bj/
+*.pdb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.builds
+*.log
+*.resharper
+*.bak
+*.cache
+*.ncb
+*.opendb
+*.safe
+*.scc
+*.vspscc
+*.vssscc
+*.vsp
+*.vsw
+*.code-workspace
+
+## Package Manager Directories
+packages/
+node_modules/
+
+## Rider Specific (if using JetBrains Rider)
+.idea/
+*.sln.iml
+
+## Visual Studio Specific
+.vs/
+*.csproj.user
+*.vcxproj.user
+*.sln.ghost
+*.VC.db
+*.VC.VC.opendb
+*.VC.VC.db
+*.VC.VC.VC.opendb
+*.VC.VC.VC.db
+*.VC.VC.VC.opendb
+*.VC.VC.VC.VC.opendb
+*.VC.VC.VC.VC.db
+*.VC.VC.VC.VC.VC.opendb
+*.VC.VC.VC.VC.VC.db
+
+## Other
+TestResults/
+*.trx
+*.DotSettings
+*.DotSettings.user
+*.min.js
+*.min.css
+*.map
+
+
+## IDE Specific (if using VS Code)
+.vscode/
+
+## Other
+tmp/
+*.seed
+.sass-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+.prettierignore

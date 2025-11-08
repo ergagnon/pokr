@@ -1,0 +1,295 @@
+.participant-view-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Session Header
+.session-header {
+  .connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    
+    .status-primary { color: #4caf50; }
+    .status-warn { color: #f44336; }
+    .status-accent { color: #ff9800; }
+    
+    .last-updated {
+      margin-left: auto;
+      font-size: 0.875rem;
+      color: #666;
+    }
+  }
+}
+
+// Error Card
+.error-card {
+  background-color: #ffebee;
+  border-left: 4px solid #f44336;
+  
+  .error-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #c62828;
+  }
+}
+
+// Current Story
+.current-story {
+  .story-title {
+    margin: 0 0 12px 0;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .story-status {
+    margin-top: 12px;
+  }
+}
+
+// No Story
+.no-story {
+  .no-story-content {
+    text-align: center;
+    padding: 32px 16px;
+    color: #666;
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      color: #999;
+    }
+    
+    h3 {
+      margin: 0 0 8px 0;
+      color: #333;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Voting Section
+.voting-section {
+  // Styles handled by voting-cards component
+}
+
+// Vote Results
+.vote-results {
+  .results-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+    
+    .consensus-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+    
+    .suggested-estimate {
+      color: #3f51b5;
+      font-size: 1.1rem;
+    }
+  }
+  
+  .vote-breakdown {
+    margin-bottom: 24px;
+    
+    h4 {
+      margin: 0 0 12px 0;
+      color: #333;
+    }
+    
+    .votes-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      
+      .vote-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        
+        .participant-name {
+          font-weight: 500;
+        }
+        
+        .vote-value {
+          min-width: 40px;
+          text-align: center;
+        }
+      }
+    }
+  }
+  
+  .estimate-distribution {
+    h4 {
+      margin: 0 0 12px 0;
+      color: #333;
+    }
+    
+    .distribution-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      
+      .distribution-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        
+        .estimate {
+          min-width: 40px;
+          font-weight: 500;
+          text-align: center;
+        }
+        
+        .count-bar {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          
+          .bar {
+            height: 20px;
+            background-color: #3f51b5;
+            border-radius: 10px;
+            min-width: 4px;
+            transition: width 0.3s ease;
+          }
+          
+          .count {
+            font-size: 0.875rem;
+            color: #666;
+            min-width: 20px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Participants List
+.participants-list {
+  .empty-participants {
+    text-align: center;
+    padding: 32px 16px;
+    color: #666;
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      color: #999;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Voting Progress
+.voting-progress {
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    
+    h4 {
+      margin: 0;
+      color: #333;
+    }
+    
+    .progress-text {
+      font-size: 0.875rem;
+      color: #666;
+    }
+  }
+  
+  .progress-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #e8f5e8;
+    border-radius: 4px;
+    color: #2e7d32;
+    font-weight: 500;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .participant-view-container {
+    padding: 8px;
+    gap: 12px;
+  }
+  
+  .vote-results {
+    .results-summary {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .votes-list {
+      justify-content: center;
+    }
+  }
+  
+  .distribution-chart {
+    .distribution-item {
+      .estimate {
+        min-width: 30px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .session-header {
+    .connection-status {
+      flex-wrap: wrap;
+      
+      .last-updated {
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+        margin-top: 8px;
+      }
+    }
+  }
+  
+  .vote-breakdown {
+    .votes-list {
+      .vote-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 4px;
+      }
+    }
+  }
+}

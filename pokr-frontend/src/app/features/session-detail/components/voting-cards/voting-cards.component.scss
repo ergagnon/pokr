@@ -1,0 +1,122 @@
+.voting-cards-container {
+  padding: 16px;
+}
+
+.voting-title {
+  margin-bottom: 16px;
+  color: #333;
+  font-weight: 500;
+}
+
+.poker-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+  justify-content: center;
+}
+
+.poker-card {
+  width: 80px;
+  height: 120px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.poker-card:hover:not(.submitted) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.poker-card.selected {
+  border-color: #3f51b5;
+  background-color: #e8eaf6;
+  transform: scale(1.1);
+}
+
+.poker-card.special-card {
+  background-color: #fff3e0;
+}
+
+.poker-card.special-card.selected {
+  background-color: #ff9800;
+  color: white;
+  border-color: #f57c00;
+}
+
+.poker-card.submitted {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card-content {
+  padding: 8px !important;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-value {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+}
+
+.voting-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.vote-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #e8f5e8;
+  border-radius: 4px;
+  color: #2e7d32;
+}
+
+.vote-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  color: #c62828;
+}
+
+@media (max-width: 768px) {
+  .poker-cards {
+    justify-content: center;
+  }
+  
+  .poker-card {
+    width: 70px;
+    height: 100px;
+  }
+  
+  .card-value {
+    font-size: 20px;
+  }
+  
+  .voting-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+}

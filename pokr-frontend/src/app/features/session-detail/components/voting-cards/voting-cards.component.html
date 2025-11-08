@@ -1,0 +1,49 @@
+<div class="voting-cards-container">
+  <h3 class="voting-title">Select Your Estimate</h3>
+  
+  <div class="poker-cards">
+    <mat-card 
+      class="poker-card" 
+      *ngFor="let card of votingCards" 
+      [class.selected]="selectedCard?.value === card.value"
+      [class.special-card]="card.isSpecial"
+      [class.submitted]="hasSubmitted"
+      (click)="selectCard(card)"
+      [attr.data-testid]="'voting-card-' + card.value">
+      
+      <mat-card-content class="card-content">
+        <div class="card-value">{{ card.displayValue }}</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
+  <div class="voting-actions" *ngIf="selectedCard && !hasSubmitted">
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="submitVote()"
+      [disabled]="isSubmitting"
+      data-testid="submit-vote-button">
+      <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
+      {{ isSubmitting ? 'Submitting...' : 'Submit Vote' }}
+    </button>
+    
+    <button 
+      mat-button 
+      (click)="clearSelection()"
+      [disabled]="isSubmitting"
+      data-testid="clear-selection-button">
+      Clear Selection
+    </button>
+  </div>
+  
+  <div class="vote-status" *ngIf="hasSubmitted">
+    <mat-icon color="primary">check_circle</mat-icon>
+    <span>Vote submitted successfully!</span>
+  </div>
+  
+  <div class="vote-error" *ngIf="errorMessage">
+    <mat-icon color="warn">error</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+</div>
