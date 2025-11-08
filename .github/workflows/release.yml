@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: pokr-frontend/package-lock.json
+    
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+    
+    - name: Build Backend
+      run: |
+        dotnet restore
+        dotnet publish Pokr/Pokr.csproj -c Release -o ./publish/backend --self-contained false
+    
+    - name: Build Frontend
+      working-directory: pokr-frontend
+      run: |
+        npm ci
+        npm run build -- --configuration production --base-href /
+    
+    - name: Copy Frontend to Backend wwwroot
+      run: |
+        mkdir -p ./publish/backend/wwwroot
+        cp -r ./pokr-frontend/dist/pokr-frontend/browser/* ./publish/backend/wwwroot/
+    
+    - name: Create Release Archive
+      run: |
+        cd ./publish
+        tar -czf pokr-${{ steps.get_version.outputs.VERSION }}.tar.gz backend/
+        cd ..
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ./publish/pokr-${{ steps.get_version.outputs.VERSION }}.tar.gz
+        body: |
+          ## Pokr - Planning Poker Application
+          
+          Release version ${{ steps.get_version.outputs.VERSION }}
+          
+          ### Installation
+          1. Extract the archive
+          2. Configure `appsettings.json` with your settings
+          3. Run `dotnet Pokr.dll`
+          4. Access the application at http://localhost:5000
+          
+          ### What's Included
+          - Backend API (.NET 8.0)
+          - Frontend UI (Angular)
+          - SQLite database support
+          - SignalR real-time updates
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
