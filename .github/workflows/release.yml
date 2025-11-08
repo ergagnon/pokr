@@ -38,12 +38,16 @@ jobs:
       working-directory: pokr-frontend
       run: |
         npm ci
-        npm run build -- --configuration production --base-href /
+        npm run build
     
     - name: Copy Frontend to Backend wwwroot
       run: |
         mkdir -p ./publish/backend/wwwroot
-        cp -r ./pokr-frontend/dist/pokr-frontend/browser/* ./publish/backend/wwwroot/
+        if [ -d "./pokr-frontend/dist/pokr-frontend/browser" ]; then
+          cp -r ./pokr-frontend/dist/pokr-frontend/browser/* ./publish/backend/wwwroot/
+        else
+          cp -r ./pokr-frontend/dist/pokr-frontend/* ./publish/backend/wwwroot/
+        fi
     
     - name: Create Release Archive
       run: |

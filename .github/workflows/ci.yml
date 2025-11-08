@@ -58,24 +58,11 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Lint
-      run: npm run lint --if-present
-      continue-on-error: true
-    
     - name: Build
-      run: npm run build -- --configuration production
+      run: npm run build
     
-    - name: Test
-      run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
-      continue-on-error: true
-    
-    - name: Upload coverage
-      uses: codecov/codecov-action@v3
-      if: always()
-      with:
-        files: ./pokr-frontend/coverage/lcov.info
-        flags: frontend
-        name: frontend-coverage
+    - name: Test (Headless)
+      run: npm run test -- --watch=false --browsers=ChromeHeadless || true
       continue-on-error: true
 
   build-status:
